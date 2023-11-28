@@ -7,10 +7,24 @@
 --				 This script also inserts rows in tables that only hold constant data that will not change throughout the simulation.
 
 -- drop and recreate database if it exists so that this script can also reset the database
-DROP DATABASE IF EXISTS PROG3070_TermProjectDB;
+
+ 
+
+DROP DATABASE IF EXISTS PROG3070_TermProjectDB; 
 GO
+
+IF DB_ID('PROG3070_TermProjectDB') IS NOT NULL
+	raiserror('Stopped script due to failure to delete pre-existing PROG3070_TermProjectDB database', 20, -1) WITH LOG;
+
 CREATE DATABASE PROG3070_TermProjectDB;
+
 GO
+
+USE PROG3070_TermProjectDB;
+
+GO
+
+BEGIN TRY
 
 --
 -- create database tables
@@ -42,49 +56,11 @@ CREATE TABLE Parts (
 -- Stores information about specific part bins that have been created.
 -- Bins will be deleted from the database when they are replaced with new bins that will be added
 CREATE TABLE Bins (
-	BinID int IDENTITY(1,1);
+	BinID int IDENTITY(1,1),
 	PartID nchar(9),
 	CurrentQuantity int,
 	PRIMARY KEY (BinID),
 	FOREIGN KEY (PartID) REFERENCES Parts(PartID)
-);
-
--- Stores information about a single assembly station capable of creating one fog lamp at a time and managed by one asssembly worker.
--- The number of assembly stations to be created will be determined by the config table and are created at the beginning of the simulation.
--- No Assembly Stations should be deleted during the simulation, however its bins will be updated as they run low and are replaced,
--- and the isActive flag may be updated if the station is disabled for any reason.
-CREATE TABLE AssemblyStations (
-	StationID int IDENTITY(1,1),
-	IsActive bit,
-	CurrentWorkerID int,
-	HarnessBin int,
-	ReflectorBin int,
-	BulbBin int,
-	BezelBin int,
-	HousingBin int,
-	LensBin int,
-	PRIMARY KEY (StationID),
-	FOREIGN KEY (CurrentWorkerID) REFERENCES (fill in),
-	FOREIGN KEY (HarnessBin) REFERENCES Bin(BinID),
-	FOREIGN KEY (HousingBin) REFERENCES Bin(BinID),
-	FOREIGN KEY (ReflectorBin) REFERENCES Bin(BinID),
-	FOREIGN KEY (BulbBin) REFERENCES Bin(BinID),
-	FOREIGN KEY (BezelBin) REFERENCES Bin(BinID),
-	FOREIGN KEY (LensBin) REFERENCES Bin(BinID)
-);
-
--- Stores jobs for the runner
--- The TaskInProgress bit determines if the task is in the process of being completed, 
--- or if it is waiting for the runner to start it. Runner tasks are created when the parts of a bin reach a specific count
--- as a queued task, and will be activated by the runner simulator. When tasks are completed, they are deleted from the table
-CREATE TABLE RunnerTasks (
-	TaskID int IDENTITY(1,1),
-	PartID nchar(9),
-	StationID int,
-	TaskInProgress bit,
-	PRIMARY KEY (TaskID),
-	FOREIGN KEY (PartID) REFERENCES Parts(PartID),
-	FOREIGN KEY (StationID) REFERENCES AssemblyStation(StationID)
 );
 
 -- Stores Information on individual workers
@@ -105,11 +81,47 @@ CREATE TABLE WorkerLevels (
 	DefectRate decimal(6, 4),
 	AssemblyTime decimal(4, 2),
 	AssemblyRangePercent decimal(6, 4),
-	PRIMARY KEY (SkillLevel),
-	FOREIGN KEY (DefectRate) REFERENCES [Configurations](ConfigValue),
-	FOREIGN KEY (AssemblyTime) REFERENCES [Configurations](ConfigValue),
-	FOREIGN KEY (AssemblyRangePercent) REFERENCES [Configurations](ConfigValue)
+	PRIMARY KEY (SkillLevel)
 );
+
+-- Stores information about a single assembly station capable of creating one fog lamp at a time and managed by one asssembly worker.
+-- The number of assembly stations to be created will be determined by the config table and are created at the beginning of the simulation.
+-- No Assembly Stations should be deleted during the simulation, however its bins will be updated as they run low and are replaced,
+-- and the isActive flag may be updated if the station is disabled for any reason.
+CREATE TABLE AssemblyStations (
+	StationID int IDENTITY(1,1),
+	IsActive bit,
+	CurrentWorkerID int,
+	HarnessBin int,
+	ReflectorBin int,
+	BulbBin int,
+	BezelBin int,
+	HousingBin int,
+	LensBin int,
+	PRIMARY KEY (StationID),
+	FOREIGN KEY (CurrentWorkerID) REFERENCES Workers(WorkerID),
+	FOREIGN KEY (HarnessBin) REFERENCES Bins(BinID),
+	FOREIGN KEY (HousingBin) REFERENCES Bins(BinID),
+	FOREIGN KEY (ReflectorBin) REFERENCES Bins(BinID),
+	FOREIGN KEY (BulbBin) REFERENCES Bins(BinID),
+	FOREIGN KEY (BezelBin) REFERENCES Bins(BinID),
+	FOREIGN KEY (LensBin) REFERENCES Bins(BinID)
+);
+
+-- Stores jobs for the runner
+-- The TaskInProgress bit determines if the task is in the process of being completed, 
+-- or if it is waiting for the runner to start it. Runner tasks are created when the parts of a bin reach a specific count
+-- as a queued task, and will be activated by the runner simulator. When tasks are completed, they are deleted from the table
+CREATE TABLE RunnerTasks (
+	TaskID int IDENTITY(1,1),
+	PartID nchar(9),
+	StationID int,
+	TaskInProgress bit,
+	PRIMARY KEY (TaskID),
+	FOREIGN KEY (PartID) REFERENCES Parts(PartID),
+	FOREIGN KEY (StationID) REFERENCES AssemblyStations(StationID)
+);
+
 
 -- Stores information about a single fog lamp
 -- The worker and station are set by the assembly station in charge of assembling the lamp
@@ -124,7 +136,7 @@ CREATE TABLE FogLamps (
 	AssemblyTimeInSeconds INT,
 	PRIMARY KEY (LampID),
 	FOREIGN KEY (StationID) REFERENCES AssemblyStations(StationID), 
-	FOREIGN KEY (WorkerID) REFERENCES (fill in)
+	FOREIGN KEY (WorkerID) REFERENCES Workers(WorkerID),
 	FOREIGN KEY ([Status]) REFERENCES LampStatuses([Status])
 );
 
@@ -151,20 +163,27 @@ INSERT INTO LampStatuses([Status]) VALUES
 --
 
 CREATE NONCLUSTERED INDEX idxFogLampStationID 
-	ON TABLE FogLamps(StationID);
+	ON FogLamps(StationID);
 
 CREATE NONCLUSTERED INDEX idxFogLampStatus
-	ON TABLE FogLamps([Status]);
+	ON FogLamps([Status]);
 
 CREATE NONCLUSTERED INDEX idxBinPartID
-	ON TABLE Bins(PartID);
+	ON Bins(PartID);
 
 CREATE NONCLUSTERED INDEX idxStationsIsActive
-	ON TABLE AssemblyStations(IsActive);
+	ON AssemblyStations(IsActive);
 
 CREATE NONCLUSTERED INDEX idxTaskInProgress
-	ON TABLE RunnerTasks(TaskInProgress);
+	ON RunnerTasks(TaskInProgress);
 
 CREATE NONCLUSTERED INDEX idxWorkerSkillLevel
-	ON TABLE Workers(SkillLevel);
+	ON Workers(SkillLevel);
+
+END TRY
+BEGIN CATCH
+
+	SELECT ERROR_MESSAGE() AS 'Error Message';
+
+END CATCH
 
