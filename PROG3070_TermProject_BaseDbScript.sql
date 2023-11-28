@@ -50,6 +50,7 @@ CREATE TABLE LampStatuses (
 -- This table will be filled with static values that will not be affected by the running of the simulation
 CREATE TABLE Parts (
 	PartID NCHAR(9),
+	BinCapacity int,
 	PRIMARY KEY (PartID)
 );
 
@@ -145,19 +146,30 @@ CREATE TABLE FogLamps (
 -- insert constant/static table data
 --
 
-INSERT INTO Parts(PartID) VALUES
-	('Harness'),
-	('Housing'),
-	('Reflector'),
-	('Bulb'),
-	('Bezel'),
-	('Lens');
+INSERT INTO Parts(PartID, BinCapacity) VALUES
+	('Harness', 55),
+	('Housing', 24),
+	('Reflector', 35),
+	('Bulb', 60),
+	('Bezel', 75),
+	('Lens', 40);
 
 INSERT INTO LampStatuses([Status]) VALUES
 	('InProgress'),
 	('Completed'),
 	('Defective');
 
+INSERT INTO WorkerLevels(SkillLevel, DefectRate, AssemblyTime, AssemblyRangePercent) VALUES
+	('Beginner', 0.0085, 1.5, 0),
+	('Intermediate', 0.005, 1.0, 0.1),
+	('Expert', 0.0015, 0.85, 0);
+
+INSERT INTO [Configurations](ConfigKey, ConfigValue) VALUES
+	('TimeScale', '1.0'),
+	('BaseRunnerTimeInSeconds', '300'),
+	('BaseAssemblyTimeInSeconds', '60'),
+	('MinPartCountForNotification', '5'),
+	('TotalOrderCount', '100');
 
 --
 -- create indexes
