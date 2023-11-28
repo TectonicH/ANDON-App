@@ -56,7 +56,7 @@ BEGIN
 			DECLARE @assemblyLowRange int = @averageAssemblyTime - CAST(ROUND(@averageAssemblyTime * @assemblyRange, 0) AS int);
 			DECLARE @assemblyHighRange int = @averageAssemblyTime + CAST(ROUND(@averageAssemblyTime * @assemblyRange, 0) AS int);
 			
-			SET @result = FLOOR(RAND() * (@assemblyHighRange - @assemblyLowRange + 1)) + @assemblyLowRange;
+			SET @result = FLOOR(@randResult * (@assemblyHighRange - @assemblyLowRange + 1)) + @assemblyLowRange;
 		END
 	END
 
