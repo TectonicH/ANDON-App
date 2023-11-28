@@ -1,0 +1,7 @@
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\PROG3070_TermProject_SimulateStation\bin\Debug\PROG3070_TermProject_SimulateStation.exe.config
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\PROG3070_TermProject_SimulateStation\bin\Debug\PROG3070_TermProject_SimulateStation.exe
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\PROG3070_TermProject_SimulateStation\bin\Debug\PROG3070_TermProject_SimulateStation.pdb
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\PROG3070_TermProject_SimulateStation\obj\Debug\PROG3070_TermProject_SimulateStation.csproj.AssemblyReference.cache
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\PROG3070_TermProject_SimulateStation\obj\Debug\PROG3070_TermProject_SimulateStation.csproj.CoreCompileInputs.cache
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\PROG3070_TermProject_SimulateStation\obj\Debug\PROG3070_TermProject_SimulateStation.exe
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\PROG3070_TermProject_SimulateStation\obj\Debug\PROG3070_TermProject_SimulateStation.pdb

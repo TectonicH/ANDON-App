@@ -1,0 +1,7 @@
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\Workstation Sim\bin\Debug\Workstation Sim.exe.config
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\Workstation Sim\bin\Debug\Workstation Sim.exe
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\Workstation Sim\bin\Debug\Workstation Sim.pdb
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\Workstation Sim\obj\Debug\Workstation Sim.csproj.AssemblyReference.cache
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\Workstation Sim\obj\Debug\Workstation Sim.csproj.CoreCompileInputs.cache
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\Workstation Sim\obj\Debug\Workstation Sim.exe
+C:\Users\KB-PC\Source\Repos\ASQL-Term-Project\Workstation Sim\obj\Debug\Workstation Sim.pdb
