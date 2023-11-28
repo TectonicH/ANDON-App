@@ -63,16 +63,6 @@ CREATE TABLE Bins (
 	FOREIGN KEY (PartID) REFERENCES Parts(PartID)
 );
 
--- Stores Information on individual workers
--- Each worker is assigned to an assembly station and has a given skill level from the WorkerLevels table
--- Workers will be created in the simulation along with the stations they work at
-CREATE TABLE Workers (
-	WorkerID int IDENTITY(1,1),
-	SkillLevel nchar(12),
-	PRIMARY KEY (WorkerID),
-	FOREIGN KEY (SkillLevel) REFERENCES WorkerLevels(SkillLevel)
-);
-
 -- Stores all of the possible skill levels for a worker, including their defect rate, 
 -- the average time it should take to assemble a part, and how much their assembly time may randomly vary above and below the assembly time.
 -- This table will be filled with static values that will not be affected by the running of the simulation
@@ -82,6 +72,17 @@ CREATE TABLE WorkerLevels (
 	AssemblyTime decimal(4, 2),
 	AssemblyRangePercent decimal(6, 4),
 	PRIMARY KEY (SkillLevel)
+);
+
+
+-- Stores Information on individual workers
+-- Each worker is assigned to an assembly station and has a given skill level from the WorkerLevels table
+-- Workers will be created in the simulation along with the stations they work at
+CREATE TABLE Workers (
+	WorkerID int IDENTITY(1,1),
+	SkillLevel nchar(12),
+	PRIMARY KEY (WorkerID),
+	FOREIGN KEY (SkillLevel) REFERENCES WorkerLevels(SkillLevel)
 );
 
 -- Stores information about a single assembly station capable of creating one fog lamp at a time and managed by one asssembly worker.
