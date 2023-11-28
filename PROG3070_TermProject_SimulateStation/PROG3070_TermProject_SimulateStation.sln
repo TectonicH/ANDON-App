@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Workstation Sim", "..\Works
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunnerStationStatus", "..\RunnerStationStatus\RunnerStationStatus.csproj", "{59425763-A6CD-4ABC-8BE3-2524D05CC9C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunnerProgram", "..\RunnerProgram\RunnerProgram.csproj", "{F2B34B3B-14F5-4EC5-9538-16B94BF18340}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{59425763-A6CD-4ABC-8BE3-2524D05CC9C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59425763-A6CD-4ABC-8BE3-2524D05CC9C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59425763-A6CD-4ABC-8BE3-2524D05CC9C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2B34B3B-14F5-4EC5-9538-16B94BF18340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2B34B3B-14F5-4EC5-9538-16B94BF18340}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2B34B3B-14F5-4EC5-9538-16B94BF18340}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2B34B3B-14F5-4EC5-9538-16B94BF18340}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
