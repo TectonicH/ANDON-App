@@ -26,31 +26,32 @@ namespace Workstation_Sim
             {
                 await connection.OpenAsync();
 
-                while (true) // TODO: Gotta replace this with a proper stopping condition
+                while (true) // Replace with a proper stopping condition
                 {
+                    // Start the assembly process and get the new lamp ID
                     var (success, lampId) = await BeginAssembly(connection, stationId);
                     if (!success || lampId == -1)
                     {
                         Console.WriteLine($"Error at workstation {stationId}. Unable to begin assembly.");
-                        break; 
+                        break; // or continue, depending on error handling strategy
                     }
 
+                    // Fetch the assembly time for the new lamp
                     int assemblyTime = await GetAssemblyTime(connection, lampId);
-
-                    // check if assemblyTime is valid
                     if (assemblyTime <= 0)
                     {
-                        Console.WriteLine($"Invalid assembly time retrieved for lamp {lampId} at workstation {stationId}.");
-                        break; 
+                        Console.WriteLine($"Invalid assembly time for lamp {lampId} at workstation {stationId}.");
+                        break; // or handle appropriately
                     }
 
                     Console.WriteLine($"Assembling lamp {lampId} for {assemblyTime} seconds...");
                     await Task.Delay(assemblyTime * 1000); // Simulate assembly time
 
-                    await FinishAssembly(connection, lampId);
+                    // Finish the assembly process and determine the final status of the lamp
+                    await FinishAssembly(connection, lampId, assemblyTime);
                     Console.WriteLine($"Finished assembling lamp {lampId}.");
 
-                    await Task.Delay(1000); // Delay before next assembly
+                    await Task.Delay(1000); // Optional delay before next assembly
                 }
             }
         }
@@ -79,7 +80,7 @@ namespace Workstation_Sim
             }
         }
 
-        static async Task FinishAssembly(SqlConnection connection, int lampId)
+        static async Task FinishAssembly(SqlConnection connection, int lampId, int assemblyTime)
         {
             using (var command = new SqlCommand("FinishAssembly", connection))
             {
