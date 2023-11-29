@@ -1,0 +1,13 @@
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.suo
+*.pdb
+.vs/*
+*/.vs/*
+*/bin/*
+*/obj/*
