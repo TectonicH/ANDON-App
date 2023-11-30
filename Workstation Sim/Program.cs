@@ -27,14 +27,6 @@ namespace Workstation_Sim
 
                 while (true)
                 {
-
-                    // Start the assembly process and get the new lamp ID
-                    // error codes are any negative int return and real ids will be 1 or greater
-                    // 0 means that the procedure wasn't called correctly and we didn't even get to a try catch
-                    // -1 error means that the station wasn't active or one of the bins is already empty
-                    // -2 means that the transaction to remove the parts and create the lamp failed
-                    // -3 means that the provided stationID is null or not > 0
-
                     Console.Write("Enter the Station ID (or enter 0 to exit):");
                     var input = Console.ReadLine();
 
@@ -50,32 +42,33 @@ namespace Workstation_Sim
                         continue;
                     }
 
-                   
                     var (returnCode, lampId) = await BeginAssembly(connection, stationId);
 
                     if (returnCode != 0 || lampId == -1)
                     {
-                        Console.WriteLine($"Error at workstation {stationId}. Unable to begin assembly.");
-                        continue; 
-                    }
+                        switch (returnCode)
+                        {
+                            case -1:
+                                Console.WriteLine($"Error: Station {stationId} is not active or one of the bins is already empty.");
+                                break;
+                            case -2:
+                                Console.WriteLine($"Error: Transaction failed at station {stationId}.");
+                                break;
+                            case -3:
+                                Console.WriteLine($"Error: Invalid station ID {stationId} provided.");
+                                break;
+                            default:
+                                Console.WriteLine($"Error at workstation {stationId}. Unable to begin assembly.");
+                                break;
+                        }
 
-                    if (returnCode == -1)
-                    {
-                        Console.WriteLine($"Error: Station {stationId} is not active or one of the bins is already empty.");
+                        if (lampId == -1)
+                        {
+                            Console.WriteLine($"Error at workstation {stationId}. Lamp ID not set correctly.");
+                        }
+
                         continue;
                     }
-
-                    if (returnCode == -2)
-                    {
-                        Console.WriteLine($"Error: Transaction failed at station {stationId}.");
-                        continue;
-                    }
-
-                    if (returnCode == -3)
-                    {
-                        Console.WriteLine($"Error: Invalid station ID {stationId} provided.");
-                        continue;
-                    }               
 
                     int assemblyTime = await GetAssemblyTime(connection, lampId);
                     if (assemblyTime <= 0)
@@ -85,13 +78,34 @@ namespace Workstation_Sim
                     }
 
                     Console.WriteLine($"Assembling lamp {lampId} for {assemblyTime} seconds...");
-                    await Task.Delay(assemblyTime * 1000);  
+                    await Task.Delay(assemblyTime * 1000);
 
-                    await FinishAssembly(connection, lampId, assemblyTime);
-                    Console.WriteLine($"Finished assembling lamp {lampId}.");
 
-                    await Task.Delay(1000); 
+                    var finishAssemblyReturnCode = await FinishAssembly(connection, lampId, assemblyTime);
+                    if (finishAssemblyReturnCode != 0)
+                    {
+                        switch (finishAssemblyReturnCode)
+                        {
+                            case -1:
+                                Console.WriteLine($"Error: Lamp {lampId} is either not in progress or has already been finished.");
+                                break;
+                            case -2:
+                                Console.WriteLine($"Error: Missing data or link in the database for lamp {lampId}.");
+                                break;
+                            case -3:
+                                Console.WriteLine($"Error: Unexpected error during the finishing process for lamp {lampId}.");
+                                break;
+                            default:
+                                Console.WriteLine($"Unknown error occurred while finishing assembly for lamp {lampId}.");
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Finished assembling lamp {lampId}.");
+                    }
 
+                    await Task.Delay(1000);
                 }
             }
         }
@@ -105,7 +119,7 @@ namespace Workstation_Sim
                 var stationIdParam = new SqlParameter("@stationID", stationId) { SqlDbType = SqlDbType.Int };
                 var lampIdParam = new SqlParameter("@lampID", SqlDbType.Int) { Direction = ParameterDirection.Output };
                 var returnParam = new SqlParameter("@returnValue", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue };
-                
+
                 command.Parameters.Add(lampIdParam);
                 command.Parameters.Add(stationIdParam);
                 command.Parameters.Add(returnParam);
@@ -125,23 +139,23 @@ namespace Workstation_Sim
             }
         }
 
-        static async Task FinishAssembly(SqlConnection connection, int lampId, int assemblyTime)
+        static async Task<int> FinishAssembly(SqlConnection connection, int lampId, int assemblyTime)
         {
             using (var command = new SqlCommand("FinishAssembly", connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@lampID", lampId);
+                command.Parameters.AddWithValue("@assemblyTime", assemblyTime);
 
-                try
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error in FinishAssembly: {ex.Message}");
-                }
+                var returnParameter = command.Parameters.Add("@ReturnCode", SqlDbType.Int);
+                returnParameter.Direction = ParameterDirection.ReturnValue;
+
+                await command.ExecuteNonQueryAsync();
+
+                return (int)returnParameter.Value;
             }
         }
+
 
         static async Task<int> GetAssemblyTime(SqlConnection connection, int lampId)
         {
@@ -151,7 +165,7 @@ namespace Workstation_Sim
 
                 try
                 {
-                    var result= await command.ExecuteScalarAsync();
+                    var result = await command.ExecuteScalarAsync();
                     return result != DBNull.Value ? Convert.ToInt32(result) : -1;
                 }
                 catch (Exception ex)
