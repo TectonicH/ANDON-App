@@ -5,9 +5,12 @@
 -- DESCRIPTION : This script contains the triggers for the term project database.
 --			     The trigger runs on the Bins table and triggers when the bin count reaches a specific minimum
 --				 as described in the configurations table
+--				 This script also drops the trigger and recreates it if it already existed.
 
 USE PROG3070_TermProjectDB;
 
+GO
+DROP TRIGGER IF EXISTS BinCountTrigger
 GO
 
 CREATE TRIGGER BinCountTrigger
