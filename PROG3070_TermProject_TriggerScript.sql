@@ -39,7 +39,7 @@ BEGIN
 				OR BulbBin = BinID
 				OR LensBin = BinID
 			LEFT JOIN RunnerTasks ON AssemblyStations.StationID = RunnerTasks.StationID AND Bins.PartID = RunnerTasks.PartID
-			WHERE CurrentQuantity <= @minimumValue AND RunnerTasks.TaskID = NULL;
+			WHERE CurrentQuantity <= @minimumValue AND RunnerTasks.TaskID IS NULL;
 
 	OPEN binCursor
 	FETCH NEXT FROM binCursor INTO @stationID, @partID
