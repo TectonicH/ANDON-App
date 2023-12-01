@@ -16,7 +16,10 @@ namespace Workstation_Sim
         static async Task Main(string[] args)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["connection"].ConnectionString;
-            while (true)
+
+            int stationId = -1;
+
+            while (stationId <=0)
             {
                 Console.Write("Enter the Station ID (or enter 0 to exit):");
                 var input = Console.ReadLine();
@@ -27,9 +30,16 @@ namespace Workstation_Sim
                     break;
                 }
 
-                if (!int.TryParse(input, out int stationId) || stationId <= 0)
+                if (!int.TryParse(input, out stationId) || stationId <= 0)
                 {
                     Console.WriteLine("Invalid input. Please enter a positive number or 0 to exit.");
+                    continue;
+                }
+
+                if (!await IsStationAvailable(connectionString, stationId))
+                {
+                    Console.WriteLine($"Station {stationId} is not available. Please enter a different Station ID.");
+                    stationId = -1; 
                     continue;
                 }
 
@@ -112,7 +122,6 @@ namespace Workstation_Sim
             }
         }
 
-
         static async Task<(int returnCode, int lampId)> BeginAssembly(SqlConnection connection, int stationId)
         {
             using (var command = new SqlCommand("BeginAssembly", connection))
@@ -180,6 +189,29 @@ namespace Workstation_Sim
                     return -1;
                 }
             }
+        }
+
+        static async Task<bool> IsStationAvailable(string connectionString, int stationId)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                string query = "SELECT StationID FROM AssemblyStations WHERE StationID = @stationID";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@stationID", stationId);
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    if (result != null && result != DBNull.Value)
+                    {
+                        return Convert.ToBoolean(result);
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
