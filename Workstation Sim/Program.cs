@@ -16,31 +16,35 @@ namespace Workstation_Sim
         static async Task Main(string[] args)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["connection"].ConnectionString;
-            await SimulateWorkstation(connectionString);
+            while (true)
+            {
+                Console.Write("Enter the Station ID (or enter 0 to exit):");
+                var input = Console.ReadLine();
+
+                if (input == "0")
+                {
+                    Console.WriteLine("Exiting the program.");
+                    break;
+                }
+
+                if (!int.TryParse(input, out int stationId) || stationId <= 0)
+                {
+                    Console.WriteLine("Invalid input. Please enter a positive number or 0 to exit.");
+                    continue;
+                }
+
+                await SimulateWorkstation(connectionString, stationId);
+            }
         }
 
-        static async Task SimulateWorkstation(string connectionString)
+        static async Task SimulateWorkstation(string connectionString, int stationId)
         {
             using (var connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
                 while (true) 
-                {
-                    Console.Write("Enter the Station ID (or enter 0 to exit):");
-                    var input = Console.ReadLine();
-
-                    if (input == "0")
-                    {
-                        Console.WriteLine("Exiting the program.");
-                        break;
-                    }
-
-                    if (!int.TryParse(input, out int stationId) || stationId <= 0)
-                    {
-                        Console.WriteLine("Invalid input. Please enter a positive number or 0 to exit.");
-                        continue;
-                    }
+                {       
 
                     var (returnCode, lampId) = await BeginAssembly(connection, stationId);
 
