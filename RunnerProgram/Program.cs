@@ -12,6 +12,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Configuration;
 using System.Threading.Tasks;
 
 
@@ -19,7 +20,7 @@ class RunnerProgram
 {
     static async Task Main(string[] args)
     {
-        string connectionString = "Server=DESKTOP-G1JU1VE;Database=PROG3070_TermProjectDB;Trusted_Connection=True";
+        string connectionString = ConfigurationManager.ConnectionStrings["connection"].ConnectionString;
 
         // Starts the runner simulation loop.
         await RunRunnerSimulation(connectionString);
