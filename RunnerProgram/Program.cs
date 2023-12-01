@@ -21,7 +21,7 @@ class RunnerProgram
         {
             await connection.OpenAsync();
 
-            while (true) // replace with a proper stopping condition
+            while (true) 
             {
                 int runnerTime = await GetRunnerTime(connection);
                 if (runnerTime <= 0)
@@ -34,36 +34,32 @@ class RunnerProgram
                 await RefreshRunnerLoop(connection);
 
                 Console.WriteLine($"Waiting for {runnerTime} seconds before next run...");
-                await Task.Delay(runnerTime * 1000); // Wait for the duration of runnerTime
+                await Task.Delay(runnerTime * 1000); 
             }
         }
     }
 
     static async Task<int> GetRunnerTime(SqlConnection connection)
     {
-        using (var command = new SqlCommand("dbo.GetRunnerTime", connection))
+        string sql = "SELECT dbo.GetRunnerTime();";
+        using (var command = new SqlCommand(sql, connection))
         {
-            command.CommandType = CommandType.StoredProcedure;
-
             try
             {
                 var result = await command.ExecuteScalarAsync();
 
-                // Check if the result is not null 
-                if (result != null && !(result is DBNull))
+                if (result == null || result == DBNull.Value)
                 {
-                    return (int)result;
+                    Console.WriteLine("GetRunnerTime returned null or DBNull.");
+                    return -1; 
                 }
-                else
-                {
-                    Console.WriteLine("GetRunnerTime returned a null or DBNull value.");
-                    return -1; // Return an error code or a default value
-                }
+
+                return (int)result;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error fetching runner time: {ex.Message}");
-                return -1; // Return an error code
+                return -1;
             }
         }
     }
