@@ -81,6 +81,7 @@ namespace Workstation_Sim
                             Console.WriteLine($"Error at workstation {stationId}. Lamp ID not set correctly.");
                         }
 
+                        await Task.Delay(TimeSpan.FromSeconds(3));
                         continue; 
                     }
 
