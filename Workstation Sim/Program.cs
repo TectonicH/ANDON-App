@@ -1,4 +1,14 @@
-﻿using System;
+﻿//
+// FILE : Program.cs
+// PROJECT : PROG3070 Milestone 2
+// PROGRAMMERS : Elizabeth deVries and Kristian Biviens
+// SUBMISSION DATE : Friday December 1, 2023
+// DESCRIPTION : This application is designed to simulate the operations at a workstation in a manufacturing environment. 
+//               It prompts the user to enter a station ID, checks if the station is available, and then proceeds to simulate
+//               assembly tasks. 
+
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -17,25 +27,30 @@ namespace Workstation_Sim
         {
             string connectionString = ConfigurationManager.ConnectionStrings["connection"].ConnectionString;
 
+            // Declares and initializes the stationId.
             int stationId = -1;
 
+            // Continues to prompt for a valid station ID until the user exits or provides a valid ID.
             while (stationId <=0)
             {
                 Console.Write("Enter the Station ID (or enter 0 to exit):");
                 var input = Console.ReadLine();
 
+                // Exits the program if the user enters '0'.
                 if (input == "0")
                 {
                     Console.WriteLine("Exiting the program.");
                     break;
                 }
 
+                // Validates the user's input and ensures it is a positive integer.
                 if (!int.TryParse(input, out stationId) || stationId <= 0)
                 {
                     Console.WriteLine("Invalid input. Please enter a positive number or 0 to exit.");
                     continue;
                 }
 
+                // Checks if the selected station is available for simulation.
                 if (!await IsStationAvailable(connectionString, stationId))
                 {
                     Console.WriteLine($"Station {stationId} is not available. Please enter a different Station ID.");
@@ -43,10 +58,12 @@ namespace Workstation_Sim
                     continue;
                 }
 
+                // If the station is available, starts simulating workstation operations.
                 await SimulateWorkstation(connectionString, stationId);
             }
         }
 
+        // Simulates the operations of a workstation.
         static async Task SimulateWorkstation(string connectionString, int stationId)
         {
             using (var connection = new SqlConnection(connectionString))
@@ -54,10 +71,11 @@ namespace Workstation_Sim
                 await connection.OpenAsync();
 
                 while (true) 
-                {       
-
+                {
+                    // Attempts to begin assembly at the station and captures the return code and lamp ID.
                     var (returnCode, lampId) = await BeginAssembly(connection, stationId);
 
+                    // Handles various errors that might occur during assembly.
                     if (returnCode != 0 || lampId == -1)
                     {
                         switch (returnCode)
@@ -81,9 +99,12 @@ namespace Workstation_Sim
                             Console.WriteLine($"Error at workstation {stationId}. Lamp ID not set correctly.");
                         }
 
+                        // Waits for a short period before attempting to begin assembly again.
+                        await Task.Delay(TimeSpan.FromSeconds(3));
                         continue; 
                     }
 
+                    // Retrieves the assembly time for the current lamp and station.
                     int assemblyTime = await GetAssemblyTime(connection, lampId);
                     if (assemblyTime <= 0)
                     {
@@ -91,9 +112,11 @@ namespace Workstation_Sim
                         continue;
                     }
 
+                    // Logs the start of the assembly process and waits for the duration of the assembly time.
                     Console.WriteLine($"Assembling lamp {lampId} for {assemblyTime} seconds...");
                     await Task.Delay(assemblyTime * 1000);
 
+                    // Completes the assembly process and checks for any errors.
                     var finishAssemblyReturnCode = await FinishAssembly(connection, lampId, assemblyTime);
                     if (finishAssemblyReturnCode != 0)
                     {
@@ -122,6 +145,7 @@ namespace Workstation_Sim
             }
         }
 
+        // Starts the assembly process at the station and returns the outcome.
         static async Task<(int returnCode, int lampId)> BeginAssembly(SqlConnection connection, int stationId)
         {
             using (var command = new SqlCommand("BeginAssembly", connection))
@@ -154,7 +178,7 @@ namespace Workstation_Sim
             }
         }
 
-
+        // Finishes the assembly process and returns the outcome.
         static async Task<int> FinishAssembly(SqlConnection connection, int lampId, int assemblyTime)
         {
             using (var command = new SqlCommand("FinishAssembly", connection))
@@ -172,6 +196,7 @@ namespace Workstation_Sim
             }
         }
 
+        // Retrieves the assembly time for a given lamp.
         static async Task<int> GetAssemblyTime(SqlConnection connection, int lampId)
         {
             using (var command = new SqlCommand("SELECT dbo.GetAssemblyTime(@lampID)", connection))
@@ -191,6 +216,7 @@ namespace Workstation_Sim
             }
         }
 
+        // Checks if the specified station is available for assembly.
         static async Task<bool> IsStationAvailable(string connectionString, int stationId)
         {
             using (var connection = new SqlConnection(connectionString))
