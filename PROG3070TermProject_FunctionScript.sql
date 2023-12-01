@@ -29,14 +29,14 @@ RETURNS int
 BEGIN
 	DECLARE @result int;
 
-	DECLARE @timeScale decimal;
+	DECLARE @timeScale decimal(8,4);
 	SELECT @timeScale = CAST(ConfigValue AS decimal) FROM [Configurations] WHERE ConfigKey = 'timeScale';
 
 	DECLARE @baseAssemblyTime int;
 	SELECT @baseAssemblyTime = CAST(ConfigValue AS int) FROM [Configurations] WHERE ConfigKey = 'baseAssemblyTimeInSeconds';
 
-	DECLARE @baseAssemblyMultiplier decimal;
-	DECLARE @assemblyRange decimal;
+	DECLARE @baseAssemblyMultiplier  decimal(8,4);;
+	DECLARE @assemblyRange decimal(8,4);
 	SELECT @baseAssemblyMultiplier = AssemblyTime, @assemblyRange = AssemblyRangePercent FROM WorkerLevels
 		INNER JOIN Workers ON Workers.SkillLevel = WorkerLevels.SkillLevel
 		INNER JOIN FogLamps ON FogLamps.WorkerID = Workers.WorkerID AND lampID = @LampID;
@@ -49,7 +49,7 @@ BEGIN
 			SET @result = -2
 		ELSE
 		BEGIN
-			DECLARE @randResult int;
+			DECLARE @randResult decimal(8, 4);
 			SELECT @randResult = RandResult FROM GetRandValueView;
 
 			DECLARE @averageAssemblyTime int = CAST(ROUND(@baseAssemblyTime * @timeScale * @baseAssemblyMultiplier, 0) AS int);
@@ -75,8 +75,8 @@ RETURNS int
 BEGIN
 	DECLARE @result int;
 
-	DECLARE @timeScale decimal;
-	SELECT @timeScale = CAST(ConfigValue AS decimal) FROM [Configurations] WHERE ConfigKey = 'timeScale';
+	DECLARE @timeScale decimal(8,4);
+	SELECT @timeScale = CAST(ConfigValue AS decimal(8,4)) FROM [Configurations] WHERE ConfigKey = 'timeScale';
 
 	DECLARE @baseRunnerTime int;
 	SELECT @baseRunnerTime = CAST(ConfigValue AS int) FROM [Configurations] WHERE ConfigKey = 'baseRunnerTimeInSeconds';
