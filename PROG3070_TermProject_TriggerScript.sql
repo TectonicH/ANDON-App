@@ -25,20 +25,21 @@ BEGIN
 	DECLARE @minimumValue int = (SELECT ConfigValue FROM Configurations 
 									WHERE ConfigKey = 'minPartCountForNotification');
 
-	-- find any bins with lower than minimum part count, according to our design it should only ever be 1 bin at a time
+	-- find any bins with lower than minimum part count that don't have their own task, according to our design it should only ever be 1 bin at a time
 	-- however we want to handle multiple incase we ever change the bin capacities, part usage etc to allow multiple bins to go past the minimum together
 	-- we also grab from whole table instead of from deleted pseudotable so we can hopefully account for any low bins that may have been missed (for example if a partial bin was inserted with <= minimum quantity)
 	DECLARE @stationID int;
 	DECLARE @partID nchar(9);
 	DECLARE binCursor CURSOR FOR 
-		SELECT StationID, PartID FROM Bins 
+		SELECT AssemblyStations.StationID, Bins.PartID FROM Bins 
 			INNER JOIN AssemblyStations ON HarnessBin = BinID
 				OR HousingBin = BinID 
 				OR ReflectorBin = BinID
 				OR BezelBin = BinID 
 				OR BulbBin = BinID
 				OR LensBin = BinID
-			WHERE CurrentQuantity <= @minimumValue;
+			LEFT JOIN RunnerTasks ON AssemblyStations.StationID = RunnerTasks.StationID AND Bins.PartID = RunnerTasks.PartID
+			WHERE CurrentQuantity <= @minimumValue AND RunnerTasks.TaskID = NULL;
 
 	OPEN binCursor
 	FETCH NEXT FROM binCursor INTO @stationID, @partID
