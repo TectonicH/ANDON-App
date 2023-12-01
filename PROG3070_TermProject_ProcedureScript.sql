@@ -254,15 +254,35 @@ BEGIN
 							WHERE PartID = @currentPartID);
 					
 					BEGIN TRY
-						-- we don't have any special requirements, so use the default transaction level
+
+						SET TRANSACTION ISOLATION LEVEL SNAPSHOT;
 						BEGIN TRAN
 							-- remove old bin, insert new bin, assign capacity, and add remaining part count,
 							-- then delete the task
-							DELETE FROM Bins WHERE BinID = @binToReplace;
-
 							INSERT INTO Bins (PartID, CurrentQuantity) VALUES
 								(@currentPartID, @currentPartCapacity + @remainingQuantity);
-						
+
+								DECLARE @newBinID int = SCOPE_IDENTITY();
+								IF @currentPartID = 'Housing' 
+									UPDATE AssemblyStations SET HousingBin = @newBinID
+										WHERE StationID = @currentStationID
+								IF @currentPartID = 'Harness'
+									UPDATE AssemblyStations SET HarnessBin = @newBinID
+										WHERE StationID = @currentStationID
+								IF @currentPartID = 'Reflector'
+									UPDATE AssemblyStations SET ReflectorBin = @newBinID
+										WHERE StationID = @currentStationID
+								IF @currentPartID = 'Bulb'
+									UPDATE AssemblyStations SET BulbBin = @newBinID
+										WHERE StationID = @currentStationID
+								IF @currentPartID = 'Bezel'
+									UPDATE AssemblyStations SET BezelBin = @newBinID
+										WHERE StationID = @currentStationID
+								IF @currentPartID = 'Lens'
+									UPDATE AssemblyStations SET LensBin = @newBinID
+										WHERE StationID = @currentStationID
+
+							DELETE FROM Bins WHERE BinID = @binToReplace;
 							DELETE FROM RunnerTasks WHERE TaskID = @currentTaskID;
 						COMMIT TRAN
 					END TRY
@@ -273,9 +293,12 @@ BEGIN
 							SET @returnCode = -2;
 						END
 					END CATCH
+
+					SET @activeTaskCount = @activeTaskCount - 1
 				END
 			END
 
+			-- activate all the pending tasks
 			UPDATE RunnerTasks SET TaskInProgress = 1 WHERE TaskInProgress = 0;
 			SET @returnCode = 0;
 		END
