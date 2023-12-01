@@ -154,9 +154,9 @@ BEGIN TRY
 		('Defective');
 
 	INSERT INTO WorkerLevels(SkillLevel, DefectRate, AssemblyTime, AssemblyRangePercent) VALUES
-		('Beginner', 0.0085, 1.5, 0),
+		('Beginner', 0.0085, 1.5, 0.1),
 		('Intermediate', 0.005, 1.0, 0.1),
-		('Expert', 0.0015, 0.85, 0);
+		('Expert', 0.0015, 0.85, 0.1);
 
 	INSERT INTO [Configurations](ConfigKey, ConfigValue) VALUES
 		('TimeScale', '1.0'),
