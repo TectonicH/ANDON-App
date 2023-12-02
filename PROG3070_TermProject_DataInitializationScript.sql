@@ -10,6 +10,14 @@ USE PROG3070_TermProjectDB;
 
 GO
 
+-- drop all data from the tables so that this initialization script can refresh all data
+
+DELETE FROM Workers;
+DELETE FROM AssemblyStations;
+DELETE FROM FogLamps;
+DELETE FROM RunnerTasks;
+DELETE FROM Bins;
+
 -- get the bin capacity for each part, which already exists and insert the bins
 
 DECLARE @harnessCapacity int;
@@ -52,10 +60,22 @@ INSERT INTO Workers (SkillLevel) VALUES
 	('Intermediate'),
 	('Expert');
 
+-- pull down the worker and bin ids we submitted to insert into station
+DECLARE @worker1 int = (SELECT max(WorkerID) FROM Workers);
+DECLARE @worker2 int = @worker1 - 1;
+DECLARE @worker3 int = @worker2 - 1;
+
+DECLARE @harnessBinID int = (SELECT max(binID) FROM Bins WHERE PartID = 'Harness');
+DECLARE @housingBinID int = (SELECT max(binID) FROM Bins WHERE PartID = 'Housing');
+DECLARE @reflectorBinID int = (SELECT max(binID) FROM Bins WHERE PartID = 'Reflector');
+DECLARE @bulbBinID int = (SELECT max(binID) FROM Bins WHERE PartID = 'Bulb');
+DECLARE @bezelBinID int = (SELECT max(binID) FROM Bins WHERE PartID = 'Bezel');
+DECLARE @lensBinID int = (SELECT max(binID) FROM Bins WHERE PartID = 'Lens');
+
 -- insert new assembly stations with bins and workers attached
 -- we use IDENTIY(1,1) to handle the ids for bin and workers, so we can assign the right ids based on knowing the insert order
 INSERT INTO AssemblyStations (IsActive, CurrentWorkerID, HarnessBin, ReflectorBin, BulbBin, BezelBin, HousingBin, LensBin)
 	VALUES 
-		(1, 1, 1, 7, 10, 13, 4, 16),
-		(1, 2, 2, 8, 11, 14, 5, 17),
-		(1, 3, 3, 9, 12, 15, 6, 18);
+		(1, @worker3, @harnessBinID, @housingBinID, @reflectorBinID, @bulbBinID, @bezelBinID, @lensBinID),
+		(1, @worker2, @harnessBinID - 1, @housingBinID - 1, @reflectorBinID - 1, @bulbBinID - 1, @bezelBinID - 1, @lensBinID - 1),
+		(1, @worker1, @harnessBinID - 2, @housingBinID - 2, @reflectorBinID - 2, @bulbBinID - 2, @bezelBinID - 2, @lensBinID - 2);
