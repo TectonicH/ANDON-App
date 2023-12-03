@@ -25,15 +25,11 @@
                 <GridView>
                     <GridViewColumn Header="Bin ID" Width="100" DisplayMemberBinding="{Binding BinId}" />
                     <GridViewColumn Header="Part ID" Width="200" DisplayMemberBinding="{Binding PartId}" />
-                    <GridViewColumn Header="Current Quantity" Width="150" DisplayMemberBinding="{Binding CurrentQuantity}" />
-                    <GridViewColumn Header="Status" Width="100">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Status}" Style="{StaticResource BinStatusStyle}"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
+                    <GridViewColumn Header="Station ID" Width="150" DisplayMemberBinding="{Binding StationId}" />
+                    <GridViewColumn Header="Task In Progress" Width="150" DisplayMemberBinding="{Binding TaskInProgress}" />
+                    <GridViewColumn Header="Status" Width="100" DisplayMemberBinding="{Binding Status}" />
                 </GridView>
+
             </ListView.View>
         </ListView>
     </Grid>
