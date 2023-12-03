@@ -23,6 +23,7 @@ namespace Andon_Station_Display
         public MainWindow()
         {
             InitializeComponent();
+            // Hello world
         }
     }
 }
