@@ -63,7 +63,14 @@ namespace Workstation_Sim
             }
         }
 
-        // Simulates the operations of a workstation.
+        /*
+        * FUNCTION: SimulateWorkstation
+        * DESCRIPTION: Simulates the operations of a specific workstation. It handles the assembly process 
+        *              including starting and finishing assembly tasks and handling errors during the process.
+        * PARAMETERS: string connectionString: Connection string for the database.
+        *             int stationId: The ID of the station to simulate.
+        * RETURNS: Task: Represents an asynchronous operation.
+        */
         static async Task SimulateWorkstation(string connectionString, int stationId)
         {
             using (var connection = new SqlConnection(connectionString))
@@ -145,7 +152,15 @@ namespace Workstation_Sim
             }
         }
 
-        // Starts the assembly process at the station and returns the outcome.
+        /*
+        * FUNCTION: BeginAssembly
+        * DESCRIPTION: Starts the assembly process at the specified station and returns the outcome 
+        *              including the lamp ID and return code.
+        * PARAMETERS: SqlConnection connection: The active database connection.
+        *             int stationId: The ID of the station to start the assembly process.
+        * RETURNS: Task<(int returnCode, int lampId)>: A task that represents the asynchronous operation 
+        *          and returns a tuple of return code and lamp ID.
+        */
         static async Task<(int returnCode, int lampId)> BeginAssembly(SqlConnection connection, int stationId)
         {
             using (var command = new SqlCommand("BeginAssembly", connection))
@@ -178,7 +193,14 @@ namespace Workstation_Sim
             }
         }
 
-        // Finishes the assembly process and returns the outcome.
+        /*
+        * FUNCTION: FinishAssembly
+        * DESCRIPTION: Completes the assembly process for a given lamp and returns the outcome.
+        * PARAMETERS: SqlConnection connection: The active database connection.
+        *             int lampId: The ID of the lamp whose assembly is to be finished.
+        *             int assemblyTime: The time taken for the assembly.
+        * RETURNS: Task<int>: A task that represents the asynchronous operation and returns a return code.
+        */
         static async Task<int> FinishAssembly(SqlConnection connection, int lampId, int assemblyTime)
         {
             using (var command = new SqlCommand("FinishAssembly", connection))
@@ -196,7 +218,13 @@ namespace Workstation_Sim
             }
         }
 
-        // Retrieves the assembly time for a given lamp.
+        /*
+        * FUNCTION: GetAssemblyTime
+        * DESCRIPTION: Retrieves the assembly time for a specific lamp.
+        * PARAMETERS: SqlConnection connection: The active database connection.
+        *             int lampId: The ID of the lamp to fetch the assembly time for.
+        * RETURNS: Task<int>: A task that represents the asynchronous operation and returns the assembly time.
+        */
         static async Task<int> GetAssemblyTime(SqlConnection connection, int lampId)
         {
             using (var command = new SqlCommand("SELECT dbo.GetAssemblyTime(@lampID)", connection))
@@ -216,7 +244,14 @@ namespace Workstation_Sim
             }
         }
 
-        // Checks if the specified station is available for assembly.
+
+        /*
+        * FUNCTION: IsStationAvailable
+        * DESCRIPTION: Checks if the specified station is available for assembly.
+        * PARAMETERS: string connectionString: Connection string for the database.
+        *             int stationId: The ID of the station to check availability.
+        * RETURNS: Task<bool>: A task that represents the asynchronous operation and returns true if the station is available, otherwise false.
+        */
         static async Task<bool> IsStationAvailable(string connectionString, int stationId)
         {
             using (var connection = new SqlConnection(connectionString))

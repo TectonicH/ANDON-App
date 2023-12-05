@@ -26,7 +26,13 @@ class RunnerProgram
         await RunRunnerSimulation(connectionString);
     }
 
-    // The core simulation loop for the runner.
+    /*
+    * FUNCTION: RunRunnerSimulation
+    * DESCRIPTION: The core simulation loop for the runner. It establishes a connection to the SQL database
+    *              and continuously refreshes runner tasks at a set interval.
+    * PARAMETERS: string connectionString: Connection string for the database.
+    * RETURNS: Task: Represents an asynchronous operation.
+    */
     static async Task RunRunnerSimulation(string connectionString)
     {
         // Establishes a connection to the SQL database using the provided connection string.
@@ -56,7 +62,13 @@ class RunnerProgram
         }
     }
 
-    // Retrieves the runner time interval from the database.
+    /*
+    * FUNCTION: GetRunnerTime
+    * DESCRIPTION: Retrieves the runner time interval from the database. If the time is invalid, 
+    *              it logs an error and returns a negative value.
+    * PARAMETERS: SqlConnection connection: The active database connection.
+    * RETURNS: Task<int>: A task that represents the asynchronous operation and returns the runner time.
+    */
     static async Task<int> GetRunnerTime(SqlConnection connection)
     {
         string sql = "SELECT dbo.GetRunnerTime();";
@@ -86,7 +98,13 @@ class RunnerProgram
         }
     }
 
-    // Calls the RefreshRunnerLoop stored procedure to refresh runner tasks.
+    /*
+    * FUNCTION: RefreshRunnerLoop
+    * DESCRIPTION: Executes a stored procedure to refresh runner tasks and logs the outcome. 
+    *              Handles any exceptions that occur during the process.
+    * PARAMETERS: SqlConnection connection: The active database connection.
+    * RETURNS: Task: Represents an asynchronous operation.
+    */
     static async Task RefreshRunnerLoop(SqlConnection connection)
     {
         // Configures the command to execute the RefreshRunnerLoop stored procedure.
