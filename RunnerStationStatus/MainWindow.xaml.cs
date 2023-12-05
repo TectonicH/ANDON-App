@@ -65,30 +65,39 @@ namespace RunnerStationStatus
             var binsList = new ObservableCollection<Bin>();
             string connectionString = ConfigurationManager.ConnectionStrings["connection"].ConnectionString;
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                await conn.OpenAsync();
-                string sql = "SELECT BinID, PartID, StationID, TaskInProgress FROM RunnerStationTaskBreakdownView";
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    await conn.OpenAsync();
+                    string sql = "SELECT BinID, PartID, StationID, TaskInProgress FROM RunnerStationTaskBreakdownView";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
                     {
-                        while (await reader.ReadAsync())
+                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                         {
-                            var bin = new Bin
+                            while (await reader.ReadAsync())
                             {
-                                BinId = reader.GetInt32(0),
-                                PartId = reader.GetString(1),
-                                StationId = reader.GetInt32(2),
-                                TaskInProgress = reader.GetBoolean(3),
-                                Status = reader.GetBoolean(3) ? "In Progress" : "Pending"
-                            };
-                            binsList.Add(bin);
+                                var bin = new Bin
+                                {
+                                    BinId = reader.GetInt32(0),
+                                    PartId = reader.GetString(1),
+                                    StationId = reader.GetInt32(2),
+                                    TaskInProgress = reader.GetBoolean(3),
+                                    Status = reader.GetBoolean(3) ? "In Progress" : "Pending"
+                                };
+                                binsList.Add(bin);
+                            }
                         }
                     }
-                }
 
+                }
             }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"Database connection failed: {ex.Message}");
+                return Array.Empty<Bin>();
+            }
+
             return binsList.ToArray();
         }
 
