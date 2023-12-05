@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunnerStationStatus", "..\R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunnerProgram", "..\RunnerProgram\RunnerProgram.csproj", "{F2B34B3B-14F5-4EC5-9538-16B94BF18340}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyLineKanbanDisplay", "AssemblyLineKanbanDisplay\AssemblyLineKanbanDisplay.csproj", "{5B792E3B-A88B-4C2B-B0EC-0ED54B1A6099}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyLineKanbanDisplay", "..\AssemblyLineKanbanDisplay\AssemblyLineKanbanDisplay.csproj", "{5B792E3B-A88B-4C2B-B0EC-0ED54B1A6099}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
