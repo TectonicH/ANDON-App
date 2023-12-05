@@ -140,7 +140,7 @@ BEGIN
 		END
 		ELSE
 		BEGIN
-			DECLARE @defectRate decimal;
+			DECLARE @defectRate decimal(8,4);
 			SELECT @defectRate = DefectRate FROM WorkerLevels
 				INNER JOIN Workers ON Workers.SkillLevel = WorkerLevels.SkillLevel
 				INNER JOIN FogLamps ON FogLamps.WorkerID = Workers.WorkerID AND LampID = @lampID;
@@ -156,7 +156,7 @@ BEGIN
 				-- we are including the exact match of the failure rate as a success to counter act the fact that rand returns 0 <= x < 1
 				-- so we want to make up for 1 not being inclusive
 				DECLARE @newLampStatus nchar(10);
-				DECLARE @lampSuccessValue decimal;
+				DECLARE @lampSuccessValue decimal(8,4);
 				SELECT @lampSuccessValue = RandResult FROM GetRandValueView;
 
 				IF @lampSuccessValue >= @defectRate

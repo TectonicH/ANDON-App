@@ -11,12 +11,12 @@ USE PROG3070_TermProjectDB;
 GO
 
 -- drop all data from the tables so that this initialization script can refresh all data
-
-DELETE FROM AssemblyStations;
-DELETE FROM Workers;
 DELETE FROM FogLamps;
 DELETE FROM RunnerTasks;
+DELETE FROM AssemblyStations;
 DELETE FROM Bins;
+DELETE FROM Workers;
+
 
 -- get the bin capacity for each part, which already exists and insert the bins
 
@@ -74,7 +74,7 @@ DECLARE @lensBinID int = (SELECT max(binID) FROM Bins WHERE PartID = 'Lens');
 
 -- insert new assembly stations with bins and workers attached
 -- we use IDENTIY(1,1) to handle the ids for bin and workers, so we can assign the right ids based on knowing the insert order
-INSERT INTO AssemblyStations (IsActive, CurrentWorkerID, HarnessBin, ReflectorBin, BulbBin, BezelBin, HousingBin, LensBin)
+INSERT INTO AssemblyStations (IsActive, CurrentWorkerID, HarnessBin, HousingBin, ReflectorBin, BulbBin, BezelBin, LensBin)
 	VALUES 
 		(1, @worker3, @harnessBinID, @housingBinID, @reflectorBinID, @bulbBinID, @bezelBinID, @lensBinID),
 		(1, @worker2, @harnessBinID - 1, @housingBinID - 1, @reflectorBinID - 1, @bulbBinID - 1, @bezelBinID - 1, @lensBinID - 1),

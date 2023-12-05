@@ -27,6 +27,7 @@
         <Style TargetType="Label" x:Key="Field">
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="10"/>
             <Setter Property="Foreground"  Value="DarkSlateGray"/>
             <Setter Property="Margin" Value="2"/>
         </Style>
@@ -41,11 +42,11 @@
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.1*"/>
+            <ColumnDefinition Width="0.01*"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="0.1*"/>
+            <ColumnDefinition Width="0.01*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Grid.Column="1" Content="Connecting to database..." Style="{StaticResource Field}"/>
+        <Label x:Name="databaseConnectionStatusLabel" Grid.Row="0" Grid.Column="1" Content="Connecting to database..." Style="{StaticResource Field}"/>
         <Label Grid.Row="1" Grid.Column="1" Content="Order View" Style="{StaticResource Title}"/>
         <Label Grid.Row="3" Grid.Column="1" Content="Runner Summary View" Style="{StaticResource Title}"/>
         <Grid Grid.Row="2" Grid.Column="1" Margin="10,10,10,10">

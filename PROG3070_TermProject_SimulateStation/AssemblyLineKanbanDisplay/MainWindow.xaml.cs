@@ -16,6 +16,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.ComponentModel;
 using System.Data;
+using System.Threading;
 
 namespace AssemblyLineKanbanDisplay
 {
@@ -24,8 +25,9 @@ namespace AssemblyLineKanbanDisplay
     /// </summary>
     public partial class MainWindow : Window
     {
-        private int refreshRateInSeconds = 5;
+        private static readonly int REFRESH_RATE_SECONDS = 5;
         private SqlConnection connection = null;
+        private Thread refreshThread = null;
 
         private static readonly string TOTAL_ORDERS = "TotalOrders";
         private static readonly string ORDERS_IN_SYSTEM = "TotalLampsInSystem";
@@ -37,6 +39,9 @@ namespace AssemblyLineKanbanDisplay
         private static readonly string RUNNERS_TOTAL = "TotalRunnerTasksInSystem";
         private static readonly string RUNNERS_PENDING = "TotalPendingRunnerTasks";
         private static readonly string RUNNERS_ACTIVE = "TotalActiveRunnerTasks";
+
+        private static readonly string DATA_LOADING = "Connecting to the Database...";
+        private static readonly string DATA_LOADED = $"Data loaded. Refreshing in {REFRESH_RATE_SECONDS} seconds.";
 
         public MainWindow()
         {
@@ -57,11 +62,24 @@ namespace AssemblyLineKanbanDisplay
 
             connection = new SqlConnection(connectionString);
 
-            RefreshData();
+            refreshThread = new Thread(new ThreadStart(RefreshLoop));
+            refreshThread.Start();
+        }
+
+        private void RefreshLoop()
+        {
+            // keep going until the user closes the program
+            while(true)
+            {
+                this.Dispatcher.Invoke(RefreshData);
+
+                Thread.Sleep(REFRESH_RATE_SECONDS * 1000);
+            }
         }
 
         private void RefreshData()
         {
+            databaseConnectionStatusLabel.Content = DATA_LOADING;
             try
             {
                 connection.Open();
@@ -121,33 +139,33 @@ namespace AssemblyLineKanbanDisplay
                     {
                         try
                         {
-                            int totalOrders = int.Parse(orderFields[TOTAL_ORDERS] as string);
-                            int ordersSuccessful = (int)orderFields[ORDERS_COMPLETED_SUCCESSFULLY];
-                            int ordersInProgress = (int)orderFields[ORDERS_IN_PROGRESS];
-                            int assemblyStations = (int)orderFields[ORDERS_STATIONS];
-                            int ordersAttempted = (int)orderFields[ORDER_ASSEMBLIES_FINISHED];
-                            int ordersDefective = (int)Math.Round((double)(ordersAttempted - ordersSuccessful) / (double)ordersAttempted);
+                            double totalOrders = int.Parse(orderFields[TOTAL_ORDERS] as string);
+                            double ordersSuccessful = (int)orderFields[ORDERS_COMPLETED_SUCCESSFULLY];
+                            double ordersInProgress = (int)orderFields[ORDERS_IN_PROGRESS];
+                            double assemblyStations = (int)orderFields[ORDERS_STATIONS];
+                            double ordersAttempted = (int)orderFields[ORDER_ASSEMBLIES_FINISHED];
+                            double ordersDefective = ordersAttempted - ordersSuccessful;
 
-                            totalOrdersNum.Content = $"{totalOrders - ordersSuccessful}/{totalOrders}";
-                            totalOrdersPercent.Content = totalOrders == 0 ? "-%" : $"{(totalOrders - ordersSuccessful) / totalOrders * 100}%";
+                            totalOrdersNum.Content = $"{totalOrders - ordersSuccessful}/{totalOrders} orders to be completed";
+                            totalOrdersPercent.Content = totalOrders == 0 ? "-%" : $"{Math.Round((totalOrders - ordersSuccessful) / totalOrders * 100)}%";
 
-                            pendingOrdersNum.Content = $"{ordersInProgress}/{assemblyStations}";
-                            pendingOrdersPercent.Content = assemblyStations == 0 ? "-%" : $"{ordersInProgress / assemblyStations * 100}";
+                            pendingOrdersNum.Content = $"{ordersInProgress}/{assemblyStations} assembly stations in use";
+                            pendingOrdersPercent.Content = assemblyStations == 0 ? "-%" : $"{Math.Round(ordersInProgress / assemblyStations * 100)}%";
 
-                            completedOrdersNum.Content = $"{ordersSuccessful}/{totalOrders}";
-                            completedOrdersPercent.Content = totalOrders == 0 ? "-%" : $"{ordersSuccessful / totalOrders * 100}%";
+                            completedOrdersNum.Content = $"{ordersSuccessful}/{totalOrders} orders completed";
+                            completedOrdersPercent.Content = totalOrders == 0 ? "-%" : $"{Math.Round(ordersSuccessful / totalOrders * 100)}%";
 
-                            defectiveOrdersNum.Content = $"{ordersDefective}/{ordersAttempted}";
-                            defectiveOrdersPercent.Content = ordersAttempted == 0 ? "-%" : $"{ordersDefective / ordersAttempted * 100}";
+                            defectiveOrdersNum.Content = $"{ordersDefective}/{ordersAttempted} produced orders defective";
+                            defectiveOrdersPercent.Content = ordersAttempted == 0 ? "-%" : $"{Math.Round(ordersDefective / ordersAttempted * 100)}%";
 
                             int totalRunnerTasks = (int)runnerFields[RUNNERS_TOTAL];
                             int activeRunnerTasks = (int)runnerFields[RUNNERS_ACTIVE];
                             int pendingRunnerTasks = (int)runnerFields[RUNNERS_PENDING];
 
-                            pendingRunnersNum.Content = $"{pendingRunnerTasks}/{totalRunnerTasks}";
+                            pendingRunnersNum.Content = $"{pendingRunnerTasks}/{totalRunnerTasks} tasks out of total waiting to be fulfilled";
                             pendingRunnersPercent.Content = totalRunnerTasks == 0 ? "-%" : $"{pendingRunnerTasks / totalRunnerTasks * 100}%";
 
-                            activeRunnersNum.Content = $"{activeRunnerTasks}/{totalRunnerTasks}";
+                            activeRunnersNum.Content = $"{activeRunnerTasks}/{totalRunnerTasks} tasks out of total being fulfilled";
                             activeRunnersPercent.Content = totalRunnerTasks == 0 ? "-%" : $"{activeRunnerTasks / totalRunnerTasks * 100}%";
                         }
                         // if the values can't be parsed, then there is no way to display them
@@ -164,12 +182,15 @@ namespace AssemblyLineKanbanDisplay
                 }
 
             }
+
+            databaseConnectionStatusLabel.Content = DATA_LOADED;
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
             this.connection.Dispose();
+            this.refreshThread.Abort();
         }
     }
 }
