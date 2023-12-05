@@ -12,8 +12,8 @@ GO
 
 -- drop all data from the tables so that this initialization script can refresh all data
 
-DELETE FROM Workers;
 DELETE FROM AssemblyStations;
+DELETE FROM Workers;
 DELETE FROM FogLamps;
 DELETE FROM RunnerTasks;
 DELETE FROM Bins;
