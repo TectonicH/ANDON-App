@@ -29,9 +29,9 @@ SELECT
 	count(allLamps.LampID) as 'TotalLampsInSystem',
 	count(inProgLamps.LampID) as 'TotalLampsInProgress', 
 	count(totalNonProgressLamps.LampID) as 'TotalLampsProduced', 
-	count(completedLamps.LampID) as 'TotalSuccessfulLampsYield'
+	count(completedLamps.LampID) as 'TotalSuccessfulLampsYield',
+	count(DISTINCT allLamps.StationID) as 'TotalAssemblyStations'
 	 FROM FogLamps allLamps
-		LEFT JOIN RunnerTasks allRunners ON allRunners.TaskID > 0
 		LEFT JOIN FogLamps totalNonProgressLamps ON totalNonProgressLamps.[Status] <> 'InProgress' AND allLamps.LampID = totalNonProgressLamps.LampID
 		LEFT JOIN FogLamps inProgLamps ON inProgLamps.[Status] = 'InProgress'  AND allLamps.LampID = inProgLamps.LampID
 		LEFT JOIN FogLamps completedLamps ON completedLamps.[Status] = 'Completed'  AND allLamps.LampID = completedLamps.LampID

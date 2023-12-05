@@ -159,7 +159,7 @@ BEGIN TRY
 		('Expert', 0.0015, 0.85, 0.1);
 
 	INSERT INTO [Configurations](ConfigKey, ConfigValue) VALUES
-		('TimeScale', '1.0'),
+		('TimeScale', '0.2'),
 		('BaseRunnerTimeInSeconds', '300'),
 		('BaseAssemblyTimeInSeconds', '60'),
 		('MinPartCountForNotification', '5'),

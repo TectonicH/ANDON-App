@@ -30,7 +30,7 @@ BEGIN
 	DECLARE @result int;
 
 	DECLARE @timeScale decimal(8,4);
-	SELECT @timeScale = CAST(ConfigValue AS decimal) FROM [Configurations] WHERE ConfigKey = 'timeScale';
+	SELECT @timeScale = CAST(ConfigValue AS decimal(8,4)) FROM [Configurations] WHERE ConfigKey = 'timeScale';
 
 	DECLARE @baseAssemblyTime int;
 	SELECT @baseAssemblyTime = CAST(ConfigValue AS int) FROM [Configurations] WHERE ConfigKey = 'baseAssemblyTimeInSeconds';
