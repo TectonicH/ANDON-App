@@ -13,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Configuration;
+using System.Data.SqlClient;
 
 namespace RunnerStationStatus
 {
@@ -42,14 +44,34 @@ namespace RunnerStationStatus
 
         private async Task<Bin[]> GetBinsNeedingReplacementAsync()
         {
-            // TODO: Replace this actual database logic
-            await Task.Delay(1000); // Simulate database call delay
-            return new Bin[]
+            var binsList = new ObservableCollection<Bin>();
+            string connectionString = ConfigurationManager.ConnectionStrings["connection"].ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                new Bin { BinId = 1, PartId = "Lens", CurrentQuantity = 3, Status = "Low" },
-                new Bin { BinId = 2, PartId = "Bulb", CurrentQuantity = 2, Status = "Critical" }
-                // TODO: Add more bins
-            };
+                await conn.OpenAsync();
+                string sql = "SELECT BinID, PartID, StationID, TaskInProgress FROM RunnerStationTaskBreakdownView";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var bin = new Bin
+                            {
+                                BinId = reader.GetInt32(0),
+                                PartId = reader.GetString(1),
+                                StationId = reader.GetInt32(2),
+                                TaskInProgress = reader.GetBoolean(3),
+                                Status = reader.GetBoolean(3) ? "In Progress" : "Pending"
+                            };
+                            binsList.Add(bin);
+                        }
+                    }
+                }
+
+            }
+            return binsList.ToArray();
         }
 
         private void UpdateBinStatus(Bin[] binsToUpdate)
@@ -69,7 +91,8 @@ namespace RunnerStationStatus
     {
         public int BinId { get; set; }
         public string PartId { get; set; }
-        public int CurrentQuantity { get; set; }
+        public int StationId { get; set; }
+        public bool TaskInProgress { get; set; }
         public string Status { get; set; }
     }
 

@@ -1,0 +1,56 @@
+﻿<Window x:Class="Andon_Station_Display.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+    Title="Andon Display" Height="600" Width="800">
+
+    <Grid>
+        <!-- Header Section with Time and Station ID -->
+        <DockPanel LastChildFill="True" VerticalAlignment="Top" Background="#FF222222" Height="60">
+            <TextBlock DockPanel.Dock="Left" Text="{Binding CurrentTime}" Foreground="White" FontSize="24" FontWeight="Bold" Margin="10"/>
+            <TextBlock DockPanel.Dock="Right" Text="{Binding SelectedStationID, StringFormat='Station ID: {0}'}" Foreground="White" FontSize="24" FontWeight="Bold" Margin="10"/>
+        </DockPanel>
+
+        <!-- Content Section with Lamp and Bin Status -->
+        <Grid Margin="5,60,5,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Lamp Status Section -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10">
+                <TextBlock Text="Lamps Completed: " FontSize="24" FontWeight="Bold" Foreground="LightGreen"/>
+                <TextBlock Text="{Binding LampsCompleted}" FontSize="24" FontWeight="Bold" Foreground="LightGreen"/>
+                <TextBlock Text=" | Defective Lamps: " FontSize="24" FontWeight="Bold" Foreground="Tomato"/>
+                <TextBlock Text="{Binding LampsDefective}" FontSize="24" FontWeight="Bold" Foreground="Tomato"/>
+            </StackPanel>
+
+            <!-- Bin Status Section -->
+            <ListView Grid.Row="1" x:Name="ListViewBins" ItemsSource="{Binding BinStatuses}" Margin="0,10" Background="#FF333333" BorderBrush="Transparent" Foreground="White">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Part ID" Width="120" DisplayMemberBinding="{Binding PartId}" />
+                        <GridViewColumn Header="Bin ID" Width="120" DisplayMemberBinding="{Binding BinId}" />
+                        <GridViewColumn Header="Quantity" Width="120" DisplayMemberBinding="{Binding CurrentQuantity}" />
+                        <GridViewColumn Header="Status" Width="120">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Status}" Foreground="{Binding StatusColor}" FontWeight="Bold"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <!-- "Replenish Parts" Section -->
+            <Border Grid.Row="2" Background="DarkRed" Visibility="{Binding RunnerSignalVisibility}" Height="50">
+                <TextBlock Text="REPLENISH PARTS" FontWeight="Bold" FontSize="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
