@@ -109,7 +109,7 @@ class RunnerProgram
                 }
             }
         }
-        catch
+        catch (SqlException ex)
         {
             Console.WriteLine($"Database connection failed: {ex.Message}");
             return -1;
