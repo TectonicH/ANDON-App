@@ -1,4 +1,13 @@
-﻿using System;
+﻿/*
+* FILE : MainWindow.xaml.cs
+* PROJECT : PROG3070 - Final Project
+* PROGRAMMER : Kristian Biviens & Elizabeth deVries
+* FIRST VERSION : 2023-12-05
+* DESCRIPTION : This functions in this file are used to create a view of an assembly station management, showing 
+*               real-time monitoring, inventory management, and operational efficiency. 
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.SqlClient;
@@ -141,12 +150,25 @@ namespace Andon_Station_Display
         }
 
         // INotifyPropertyChanged implementation
-         public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+       /*
+        * FUNCTION: OnPropertyChanged
+        * DESCRIPTION: Notifies clients that a property value has changed.
+        * PARAMETERS: string propertyName = null: The name of the property that changed.
+        */
         protected virtual void OnPropertyChanged(string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+       /*
+        * FUNCTION: RefreshData
+        * DESCRIPTION: Refreshes the data from the database at regular intervals. It fetches 
+        *              minimum part count for notification, lamp status, and bin status.
+        * PARAMETERS: object sender: The source of the event.
+        *             EventArgs e: An object that contains the event data.
+        */
         private void RefreshData(object sender, EventArgs e)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["connection"].ConnectionString;
@@ -160,6 +182,12 @@ namespace Andon_Station_Display
             }
         }
 
+       /*
+        * FUNCTION: GetLampStatus
+        * DESCRIPTION: Retrieves the status of lamps from the database.
+        * PARAMETERS: SqlConnection connection: The database connection.
+        *             int stationId: The ID of the station to fetch data for.
+        */
         private void GetLampStatus(SqlConnection connection, int stationId)
         {
             string query = @" 
@@ -200,6 +228,11 @@ namespace Andon_Station_Display
             }
         }
 
+       /*
+        * FUNCTION: FetchMinPartCountForNotification
+        * DESCRIPTION: Retrieves the minimum part count for notification setting from the database.
+        * PARAMETERS: SqlConnection connection: The database connection.
+        */
         private void GetBinStatus(SqlConnection connection, int stationId)
         {
             string query = @"
@@ -243,7 +276,11 @@ namespace Andon_Station_Display
             RunnerSignalVisibility = shouldNotifyRunner ? Visibility.Visible : Visibility.Collapsed;
         }
 
-
+       /*
+        * FUNCTION: FetchMinPartCountForNotification
+        * DESCRIPTION: Retrieves the minimum part count for notification setting from the database.
+        * PARAMETERS: SqlConnection connection: The database connection.
+        */
         private void FetchMinPartCountForNotification(SqlConnection connection)
         {
             string query = "SELECT ConfigValue FROM Configurations WHERE ConfigKey = 'MinPartCountForNotification'";
@@ -257,6 +294,11 @@ namespace Andon_Station_Display
             }
         }
 
+       /*
+        * FUNCTION: LoadData
+        * DESCRIPTION: Loads initial data from the database, including lamp status and bin status.
+        *              Handles connection opening and error handling.
+        */
         private void LoadData()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["connection"].ConnectionString;
